@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة فك التشفير</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #653279 0%, #1e2d5c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo iframe {
+            max-width: 100%;       
+            max-height: 200px;     
+            width: 50px;           
+            height: 50px;          
+            object-fit: contain;   
+            display: inline-block; 
+            border: none;
+        }
+
+        .logo-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #653279;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #25a8ab;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .decoder-key {
+            flex: 0 0 300px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid #653279;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .decoder-title {
+            color: #1e2d5c;
+            font-size: 1.2em;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .key-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .key-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #25a8ab;
+            transition: transform 0.2s;
+        }
+
+        .key-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(37, 168, 171, 0.3);
+        }
+
+        .symbol {
+            font-size: 1.5em;
+            color: #653279;
+        }
+
+        .arrow {
+            color: #25a8ab;
+            font-size: 1em;
+            margin: 0 5px;
+        }
+
+        .letter {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1e2d5c;
+        }
+
+        .puzzle-area {
+            flex: 1;
+        }
+
+        .encoded-word {
+            background: linear-gradient(135deg, #25a8ab, #1e2d5c);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .encoded-title {
+            color: white;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .encoded-symbols {
+            font-size: 2.5em;
+            color: white;
+            letter-spacing: 10px;
+            font-weight: bold;
+        }
+
+        .answer-area {
+            text-align: center;
+        }
+
+        .answer-title {
+            color: #653279;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .answer-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .answer-box {
+            width: 70px;
+            height: 70px;
+            border: 3px solid #25a8ab;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #1e2d5c;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .answer-box:hover {
+            background: #f0f9f9;
+            border-color: #653279;
+            transform: scale(1.1);
+        }
+
+        .answer-box.filled {
+            background: #25a8ab;
+            color: white;
+            border-color: #653279;
+        }
+
+        .answer-box.active {
+            background: #ffe4b3;
+            border-color: #653279;
+            box-shadow: 0 0 20px rgba(101, 50, 121, 0.5);
+        }
+
+        .letter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .letter-btn {
+            width: 55px;
+            height: 55px;
+            border: 2px solid #653279;
+            border-radius: 10px;
+            background: white;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #1e2d5c;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .letter-btn:hover:not(:disabled) {
+            background: #653279;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-check {
+            background: #25a8ab;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background: #1e8b8d;
+            transform: scale(1.05);
+        }
+
+        .btn-new {
+            background: #653279;
+            color: white;
+        }
+
+        .btn-new:hover {
+            background: #4d2560;
+            transform: scale(1.05);
+        }
+
+        .btn-clear {
+            background: #1e2d5c;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #152045;
+            transform: scale(1.05);
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        .result.correct {
+            color: #28a745;
+        }
+
+        .result.incorrect {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <iframe src="https://studentkfuedu-my.sharepoint.com/personal/nbalshuaibi_kfu_edu_sa/_layouts/15/embed.aspx?UniqueId=1b7a3f17-cf56-482d-bf5a-2ace8ba1f5b2" width="50px" height="50px" frameborder="0" scrolling="no" allowfullscreen title="logo2"></iframe>
+            <p class="subtitle">#نبه_2025</p>
+        </div>
+        
+        <h1>لعبة فك التشفير</h1>
+        <p class="subtitle">فك شفرة الكلمة باستخدام الرموز!</p>
+
+        <div class="game-area">
+            <div class="decoder-key">
+                <div class="decoder-title">مفتاح فك التشفير</div>
+                <div class="key-grid" id="keyList"></div>
+            </div>
+
+            <div class="puzzle-area">
+                <div class="encoded-word">
+                    <div class="encoded-title">الكلمة المشفرة:</div>
+                    <div class="encoded-symbols" id="encodedWord"></div>
+                </div>
+
+                <div class="answer-area">
+                    <div class="answer-title">اكتب الكلمة هنا:</div>
+                    <div class="answer-boxes" id="answerBoxes"></div>
+                </div>
+
+                <div class="letter-buttons" id="letterButtons"></div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-check" onclick="checkAnswer()">✓ تحقق من الإجابة</button>
+            <button class="btn btn-clear" onclick="clearAnswer()">🗑️ مسح</button>
+            <button class="btn btn-new" onclick="newWord()">🔄 كلمة جديدة</button>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const alphabet = {
+            'ا': '🔒', 'ب': '🔑', 'ت': '🛡️', 'ث': '⚡', 'ج': '🔐',
+            'ح': '💻', 'خ': '🌐', 'د': '🔓', 'ذ': '⚙️', 'ر': '🖥️',
+            'ز': '📡', 'س': '🔍', 'ش': '🛰️', 'ص': '💾', 'ض': '🔌',
+            'ط': '📱', 'ظ': '🖱️', 'ع': '⌨️', 'غ': '🎮', 'ف': '📊',
+            'ق': '🔋', 'ك': '💡', 'ل': '🚀', 'م': '⭐', 'ن': '🎯',
+            'ه': '🏆', 'و': '🌟', 'ي': '✨', 'ة':'🪪'
+        };
+
+        const words = [
+            'حاسوب', 'امان', 'شبكة', 'برنامج', 'كلمة', 'مفتاح', 'رسالة', 'بيانات'
+        ];
+
+        let currentWord = '';
+        let currentIndex = 0;
+        let userAnswer = [];
+        let letterCounts = {};
+
+        function init() {
+            displayKey();
+            newWord();
+        }
+
+        function displayKey() {
+            const keyList = document.getElementById('keyList');
+            keyList.innerHTML = '';
+            
+            for (const [letter, symbol] of Object.entries(alphabet)) {
+                const item = document.createElement('div');
+                item.className = 'key-item';
+                item.innerHTML = `
+                    <span class="symbol">${symbol}</span>
+                    <span class="arrow">←</span>
+                    <span class="letter">${letter}</span>
+                `;
+                keyList.appendChild(item);
+            }
+        }
+
+        function newWord() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            currentIndex = 0;
+            userAnswer = new Array(currentWord.length).fill('');
+            
+            // Count needed letters
+            letterCounts = {};
+            for (let letter of currentWord) {
+                letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+            }
+            
+            displayEncodedWord();
+            displayAnswerBoxes();
+            displayLetterButtons();
+            document.getElementById('result').textContent = '';
+        }
+
+        function displayEncodedWord() {
+            const encoded = currentWord.split('').map(letter => alphabet[letter] || letter).join(' ');
+            document.getElementById('encodedWord').textContent = encoded;
+        }
+
+        function displayAnswerBoxes() {
+            const container = document.getElementById('answerBoxes');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < currentWord.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'answer-box';
+                if (i === currentIndex) box.classList.add('active');
+                if (userAnswer[i]) box.classList.add('filled');
+                box.textContent = userAnswer[i];
+                box.onclick = () => setActiveBox(i);
+                container.appendChild(box);
+            }
+        }
+
+        function setActiveBox(index) {
+    if (userAnswer[index]) {
+        // If the box already has a letter → delete it
+        userAnswer[index] = '';
+    } else {
+        // Otherwise just make it active
+        currentIndex = index;
+    }
+    displayAnswerBoxes();
+    document.getElementById('result').textContent = '';
+}
+
+        function displayLetterButtons() {
+            const container = document.getElementById('letterButtons');
+            container.innerHTML = '';
+            
+            const letters = Object.keys(alphabet);
+            letters.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-btn';
+                btn.textContent = letter;
+                btn.onclick = () => addLetter(letter);
+                container.appendChild(btn);
+            });
+        }
+
+        function addLetter(letter) {
+            if (currentIndex < currentWord.length && !userAnswer[currentIndex]) {
+                userAnswer[currentIndex] = letter;
+                
+                // Move to next empty box
+                for (let i = currentIndex + 1; i < currentWord.length; i++) {
+                    if (!userAnswer[i]) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+                
+                displayAnswerBoxes();
+                displayLetterButtons();
+            }
+        }
+
+        function clearAnswer() {
+            userAnswer = new Array(currentWord.length).fill('');
+            currentIndex = 0;
+            displayAnswerBoxes();
+            displayLetterButtons();
+            document.getElementById('result').textContent = '';
+        }
+
+        function checkAnswer() {
+            const answer = userAnswer.join('');
+            const result = document.getElementById('result');
+            
+            if (answer === currentWord) {
+                result.textContent = '🎉 ممتاز! إجابة صحيحة! 🎉';
+                result.className = 'result correct';
+            } else {
+                result.textContent = '❌ حاول مرة أخرى!';
+                result.className = 'result incorrect';
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
