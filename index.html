@@ -374,6 +374,24 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            }
+        footer {
+  color: #653279;                      /* white text */
+  text-align: center;               /* centered text */
+  padding: 15px 10px;               /* space around text */
+  font-size: 1em;                   /* readable size */
+  direction: rtl;                   /* Arabic direction */
+  font-family: "Cairo", sans-serif; /* Arabic-friendly font */
+  position: relative;               /* keeps it in normal flow */
+  bottom: 0;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  footer {
+    font-size: 0.9em;
+    padding: 10px;
+  }
         
 }
 
@@ -418,10 +436,10 @@
         </div>
 
         <div class="result" id="result"></div>
-
-        <footer>
+    <footer>
   جميع الحقوق محفوظة © 2025 - جامعة الملك فيصل - كلية علوم الحاسب وتقنية المعلومات
 </footer>
+        </div>
     </div>
 
     <script>
@@ -562,5 +580,6 @@
 
         init();
     </script>
+     
 </body>
 </html>
